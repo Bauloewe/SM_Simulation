@@ -276,8 +276,8 @@ sm_dict = load_SM_dict()
 t1 = [{"id":49,"level":3},{"id":45,"level":4},{"id":50,"level":3},{"id":52,"level":3},{"id":124,"level":2},{"id":46,"level":4},{"id":51,"level":2}]
 t2 = [{"id":27,"level":4},{"id":30,"level":4},{"id":23,"level":5},{"id":26,"level":5},{"id":33,"level":2}]
 
-team1 = Team(t1[0],t1[1:len(t1)],"",sm_dict,"other")
-team2 = Team(t2[0],t2[1:len(t2)],"",sm_dict,"aicu")
+team1 = Team(t1[0],t1[1:],"",sm_dict,"other")
+team2 = Team(t2[0],t2[1:],"",sm_dict,"aicu")
 
 start = timeit.default_timer()
 sm = SteemMonstersSimulation(team1,team2,sm_dict,"aicu")
