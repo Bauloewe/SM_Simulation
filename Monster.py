@@ -266,7 +266,7 @@ class Monster:
                                 pas = i
                             i += 1
                         if pas == -1:
-                            pas = 1
+                            pas = 0
 
                         return pas
                     else:
