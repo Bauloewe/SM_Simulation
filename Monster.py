@@ -237,11 +237,8 @@ class Monster:
         if self.type == "melee":
             if self.pos == 0:
                 return 0
-            elif self.pos == 1 and "Range" in self.abilities:
-                    if len(monsters)>2:
-                        return 1
-                    else:
-                        return 0
+            elif self.pos == 1 and "Reach" in self.abilities:
+                    return 0
             elif "Sneak" in self.abilities:
                 return len(monsters) - 1
             elif "Melee Mayhem" == self.ruleset:
