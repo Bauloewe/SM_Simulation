@@ -264,7 +264,7 @@ class Monster:
                                 return i
                             if pas == -1 and monster.type == "passive":
                                 pas = i
-                            i += 1
+                            i += 0
                         if pas == -1:
                             pas = 0
 
