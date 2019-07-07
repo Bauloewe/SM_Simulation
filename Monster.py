@@ -281,7 +281,7 @@ class Monster:
         if "Shield" in target.abilities and own.type != "magic":
             mod = -math.floor(damage*0.6)
         if "Void" in target.abilities and own.type == "magic":
-            mod = -math.floor(damage*0.5)
+            mod = -math.floor(damage*0.6)
         if target.stats[3] > 0 and self.type != "magic":
             rem_armor = target.stats[3] - (damage + mod)
             if "Piercing" in own.abilities and rem_armor < 0:
@@ -353,12 +353,13 @@ class Monster:
 
         elif self.type == "magic":
             mod = 0
-            if "Void" in monster.abilities:
-                mod = -1
+
 
             if self.ruleset == "Weak Magic":
                 self.attack_standard(self,monster,self.damage+mod)
             else:
+                if "Void" in monster.abilities and self.type == "magic":
+                    mod = -math.floor(self.damage*0.6)
                 rem_health = monster.stats[4] - (self.damage + mod)
                 if rem_health < 0:
                     rem_health = 0
