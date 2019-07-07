@@ -7,13 +7,17 @@ class Summoner:
         stats = details["stats"]
         self.team_mod = []
         self.enemy_mod = []
-        for key in stats:
-            if key == "mana":
-                continue
-            if stats[key] >= 0:
-                self.team_mod.append(stats[key])
-                self.enemy_mod.append(0)
-            else:
-                self.team_mod.append(0)
-                self.enemy_mod.append(stats[key])
 
+        if ruleset != "Silenced Summoners":
+            for key in stats:
+                if key == "mana":
+                    continue
+                if stats[key] >= 0:
+                    self.team_mod.append(stats[key])
+                    self.enemy_mod.append(0)
+                else:
+                    self.team_mod.append(0)
+                    self.enemy_mod.append(stats[key])
+        else:
+            self.team_mod = [0]*6
+            self.enemy_mod = [0]*6
