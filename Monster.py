@@ -1,4 +1,5 @@
 import random
+import math
 class Monster:
 
     def __init__(self,level,details,pos,ruleset):
@@ -220,7 +221,7 @@ class Monster:
             self.team_mod[4] += 1
 
     def find_target(self,monsters):
-        mod = 1
+
         #Shield -1 damage to ranged and melee
 
         if "Opportunity" in self.abilities:
@@ -280,7 +281,7 @@ class Monster:
         if "Shield" in target.abilities and own.type != "magic":
             mod = -1
         if "Void" in target.abilities and own.type == "magic":
-            mod = -1
+            mod = -math.floor(damage*0.5)
         if target.stats[3] > 0 and self.type != "magic":
             rem_armor = target.stats[3] - (damage + mod)
             if "Piercing" in own.abilities and rem_armor < 0:
@@ -364,7 +365,7 @@ class Monster:
                 monster.stats[4] = rem_health
 
             if "Magic Reflect" in monster.abilities:
-                reflected_damage = max(1,(self.damage -1))
+                reflected_damage = max(1,(math.floor(self.damage*0.5)))
                 if monster.alive:
                     self.stats[4] -= reflected_damage
         if "Blast" in self.abilities:
