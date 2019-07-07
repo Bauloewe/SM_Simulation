@@ -279,7 +279,7 @@ class Monster:
 
         mod = 0
         if "Shield" in target.abilities and own.type != "magic":
-            mod = -1
+            mod = -math.floor(damage*0.6)
         if "Void" in target.abilities and own.type == "magic":
             mod = -math.floor(damage*0.5)
         if target.stats[3] > 0 and self.type != "magic":
