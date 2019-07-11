@@ -9,6 +9,7 @@ class Summoner:
         self.enemy_mod = []
 
         if ruleset != "Silenced Summoners":
+            #print(details)
             for key in stats:
                 if key == "mana":
                     continue
@@ -21,3 +22,7 @@ class Summoner:
         else:
             self.team_mod = [0]*6
             self.enemy_mod = [0]*6
+
+        if ruleset == "Unprotected":
+            self.team_mod[3] = 0
+            self.enemy_mod[3] = 0

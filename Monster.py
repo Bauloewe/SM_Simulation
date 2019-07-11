@@ -59,6 +59,9 @@ class Monster:
                         continue
                     elif ability == "Triage":
                         continue
+                elif ruleset == "Unprotected":
+                    if ability == "Protect":
+                        continue
                 elif ruleset == "Fog of War":
                     if ability == "Sneak":
                         continue
