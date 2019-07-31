@@ -241,8 +241,25 @@ class Monster:
         if self.type == "melee":
             if self.pos == 0:
                 return 0
-            elif self.pos == 1 and "Reach" in self.abilities:
+            elif "Opportunity" in self.abilities:
+                if len(monsters)>1:
+                    backrow = monsters[1:len(monsters)]
+                    i = 1
+                    index = 0
+                    min_health = 10000
+                    for monster in backrow:
+                        if monster.stats[4] < min_health:
+                            min_health = monster.stats[4]
+                            index = i
+
+                        i += 1
+
+                    return index
+                else:
                     return 0
+
+            elif self.pos == 1 and "Reach" in self.abilities:
+                return 0
             elif "Sneak" in self.abilities:
                 return len(monsters) - 1
             elif "Melee Mayhem" == self.ruleset:
@@ -329,6 +346,8 @@ class Monster:
                 return False
 
             mod = 0
+            if "Life Leech" in self.abilities and monster.stats[4] < monster.base_stats[4]:
+                self.stats[4] += 1
             if "Stun" in self.abilities:
                 if random.random() < 0.5:
                     monster.stun = True
@@ -352,14 +371,13 @@ class Monster:
             if "Double Strike" in self.abilities:
                 self.attack_standard(self,monster)
 
-
-
         elif self.type == "magic":
             mod = 0
 
-
             if self.ruleset == "Weak Magic":
                 self.attack_standard(self,monster,self.damage+mod)
+                if "Life Leech" in self.abilities and monster.stats[4] < monster.base_stats[4]:
+                    self.stats[4] += 1
             else:
                 if "Void" in monster.abilities and self.type == "magic":
                     mod = -math.floor(self.damage*0.6)
@@ -367,6 +385,8 @@ class Monster:
                 if rem_health < 0:
                     rem_health = 0
                 monster.stats[4] = rem_health
+                if "Life Leech" in self.abilities:
+                    self.stats[4] += 1
 
             if "Magic Reflect" in monster.abilities:
                 reflected_damage = max(1,(math.floor(self.damage*0.5)))
