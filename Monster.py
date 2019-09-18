@@ -17,10 +17,10 @@ class Monster:
                 continue
             self.stats.append(stats[key][level - 1])
             self.base_stats.append(stats[key][level-1])
-        if ruleset == "Unprotected":
+        if "Unprotected" in ruleset:
             self.base_stats[3] = 0
             self.stats[3] = 0
-        elif ruleset == "Armored Up":
+        if "Armored Up" in ruleset:
             self.base_stats[3] += 2
             self.stats[3] += 2
 
@@ -46,35 +46,35 @@ class Monster:
 
         #self.stats[5] += level*0.0001
 
-        if ruleset == "Back to Basics":
+        if "Back to Basics" in ruleset:
             self.abilities = []
         else:
             abilities = stats["abilities"][0:level]
             mon_abilities = []
             for ability in abilities:
-                if ruleset == "Healed Out":
+                if "Healed Out" in ruleset:
                     if ability == "Heal":
                         continue
                     elif ability == "Tank Heal":
                         continue
                     elif ability == "Triage":
                         continue
-                elif ruleset == "Unprotected":
+                if "Unprotected" in ruleset:
                     if ability == "Protect":
                         continue
-                elif ruleset == "Fog of War":
+                if "Fog of War" in ruleset:
                     if ability == "Sneak":
                         continue
                     elif ability == "Snipe":
                         continue
-                elif ruleset == "Super Sneak":
+                if "Super Sneak" in ruleset:
                     if ability == "Reach":
                         continue
 
                 mon_abilities += ability
-            if ruleset == "Super Sneak" and type == "melee":
+            if "Super Sneak" in ruleset and type == "melee":
                 mon_abilities += "Sneak"
-            if ruleset == "Target Practice" and (type == "magic" or type == "ranged"):
+            if "Target Practice" in ruleset and (type == "magic" or type == "ranged"):
                 mon_abilities += "Snipe"
 
 
@@ -225,19 +225,6 @@ class Monster:
 
     def find_target(self,monsters):
 
-        #Shield -1 damage to ranged and melee
-
-        if "Opportunity" in self.abilities:
-            weakest = 1000
-            i = 0
-            target = 0
-            for mon in monsters:
-                if mon.stats[4] < weakest:
-                    weakest = mon.stats[4]
-                    target = i
-                i += 1
-            return target
-
         if self.type == "melee":
             if self.pos == 0:
                 return 0
@@ -262,7 +249,7 @@ class Monster:
                 return 0
             elif "Sneak" in self.abilities:
                 return len(monsters) - 1
-            elif "Melee Mayhem" == self.ruleset:
+            elif "Melee Mayhem" in self.ruleset:
                 return 0
 
         elif self.type == "ranged" or self.type == "magic":
@@ -278,15 +265,11 @@ class Monster:
                         i = 1
                         pas = -1
                         for monster in backrow:
-                            if monster.type == "magic" or monster.type == "ranged":
+                            if monster.type == "magic" or monster.type == "ranged" or monster.type == "passive":
                                 return i
-                            if pas == -1 and monster.type == "passive":
-                                pas = i
                             i += 1
-                        if pas == -1:
-                            pas = 0
 
-                        return pas
+                        return 0
                     else:
                         return 0
                 else:
@@ -299,9 +282,9 @@ class Monster:
 
         mod = 0
         if "Shield" in target.abilities and own.type != "magic":
-            mod = -math.floor(damage*0.6)
+            mod = -math.floor(damage*0.67)
         if "Void" in target.abilities and own.type == "magic":
-            mod = -math.floor(damage*0.6)
+            mod = -math.floor(damage*0.67)
         if target.stats[3] > 0 and self.type != "magic":
             rem_armor = target.stats[3] - (damage + mod)
             if "Piercing" in own.abilities and rem_armor < 0:
@@ -324,8 +307,8 @@ class Monster:
             monster.divine_shield_up = False
             return False
         if self.type == "melee" or self.type == "ranged":
-            if self.ruleset != "Reverse Speed":
-                evasion_rate = int(monster.stats[5] -self.stats[5])
+            if "Reverse Speed" not in self.ruleset:
+                evasion_rate = int(monster.stats[5] - self.stats[5])
                 if evasion_rate > 0:
                     evasion_rate *= 0.1
 
@@ -340,9 +323,10 @@ class Monster:
                 evasion_rate += 0.25
             if "Dodge" in monster.abilities:
                 evasion_rate += 0.25
+            evasion_rate += 0.1
             evasion_rate = min(0.9,evasion_rate)
 
-            if "Aim True" != self.ruleset and random.random() < evasion_rate:
+            if self.ruleset not in self.ruleset and random.random() < evasion_rate:
                 return False
 
             mod = 0
@@ -366,21 +350,24 @@ class Monster:
             if "Thorns" in monster.abilities and monster.alive and monster.type == "melee":
                 self.attack_standard(monster,self,2)
             if "Return Fire" in monster.abilities:
-                self.attack_standard(monster,self,max(self.damage-1,1))
+                self.attack_standard(monster,self,max(int(math.floor(self.damage*0.67)),1))
 
             if "Double Strike" in self.abilities:
                 self.attack_standard(self,monster)
 
+
+
         elif self.type == "magic":
             mod = 0
 
-            if self.ruleset == "Weak Magic":
+
+            if "Weak Magic" in self.ruleset:
                 self.attack_standard(self,monster,self.damage+mod)
                 if "Life Leech" in self.abilities and monster.stats[4] < monster.base_stats[4]:
                     self.stats[4] += 1
             else:
                 if "Void" in monster.abilities and self.type == "magic":
-                    mod = -math.floor(self.damage*0.6)
+                    mod = -math.floor(self.damage*0.67)
                 rem_health = monster.stats[4] - (self.damage + mod)
                 if rem_health < 0:
                     rem_health = 0
@@ -389,14 +376,14 @@ class Monster:
                     self.stats[4] += 1
 
             if "Magic Reflect" in monster.abilities:
-                reflected_damage = max(1,(math.floor(self.damage*0.5)))
+                reflected_damage = max(1,(math.floor(self.damage*0.67)))
                 if monster.alive:
                     self.stats[4] -= reflected_damage
         if "Blast" in self.abilities:
             if next_monster:
-                self.attack_standard(self,next_monster,max(1,round(self.damage*0.6,0)))
+                self.attack_standard(self,next_monster,max(1,int(math.floor(self.damage*0.67))))
             if previous_monster:
-                self.attack_standard(self,previous_monster,max(1,round(self.damage*0.6,0)))
+                self.attack_standard(self,previous_monster,max(1,int(math.floor(self.damage*0.67))))
         if self.stats[4] <= 0:
             self.alive = False
         if monster.stats[4] <= 0:
@@ -415,4 +402,3 @@ class Monster:
         monster.alive = monster.stats[4] > 0
         self.alive = self.stats[4] > 0
         return True
-
