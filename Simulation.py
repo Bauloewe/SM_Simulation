@@ -1,11 +1,6 @@
-from Monster import Monster
-from Summoner import Summoner
-from Team import Team
-import numpy as np
 import json
-import timeit
 import random
-
+import math
 
 class SteemMonstersSimulation:
     def __init__(self,team1,team2,sm_dict,player):
@@ -23,10 +18,19 @@ class SteemMonstersSimulation:
             self.apply_buff(team1,mon.team_mod,False,False)
             self.apply_buff(team2,mon.enemy_mod,False,False)
 
+            if "Blind" in mon.abilities:
+                team2.set_blinded(True)
+
         for mon in team2.monsters:
             self.apply_buff(team2,mon.team_mod,False,False)
             self.apply_buff(team1,mon.enemy_mod,False,False)
 
+
+            if "Blind" in mon.abilities:
+                team1.set_blinded(True)
+
+        self.inital_len_team1 = len(self.team1.monsters)
+        self.inital_len_team2 = len(self.team2.monsters)
 
     def apply_buff(self,team,mod,summoner,reverse):
         for monster in team.monsters:
@@ -35,16 +39,16 @@ class SteemMonstersSimulation:
 
     def simulate_battle(self):
         turns = 0
-        battle_log = ""
-        battle_log += (str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team1.monsters]) + "\n")
-        battle_log += (str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team2.monsters]) + "\n")
+        #battle_log = ""
+        #battle_log += (str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team1.monsters]) + "\n")
+        #battle_log += (str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team2.monsters]) + "\n")
         while len(self.team1.monsters) > 0 and len(self.team2.monsters) > 0:
             turns += 1
             team1_order = self.build_turn_order(self.team1)
             team2_order = self.build_turn_order(self.team2)
-            battle_log += "Turn start\n\n"
-            battle_log += str([m.name for m in team1_order]) +"\n"
-            battle_log += str([m.name for m in team2_order]) + "\n"
+            #battle_log += "Turn start\n\n"
+            #battle_log += str([m.name for m in team1_order]) +"\n"
+            #battle_log += str([m.name for m in team2_order]) + "\n"
             success = False
             while len(team1_order) != 0 or len(team2_order) != 0:
                 if len(self.team1.monsters) == 0:
@@ -74,12 +78,12 @@ class SteemMonstersSimulation:
                     current_mon.stun = False
                     continue
                 target = current_mon.find_target(enemy_team.monsters)
-                battle_log += str([n.name + str(n.stats) + str(n.level) for n in self.team1.monsters])+"\n"
-                battle_log +=str([n.name + str(n.stats) + str(n.level) for n in self.team2.monsters]) +"\n"
-                battle_log += current_mon.name + " of type "+current_mon.type +" tries to attack from pos"+str(current_mon.pos)+"\n"
+                #battle_log += str([n.name + str(n.stats) + str(n.level) for n in self.team1.monsters])+"\n"
+                #battle_log +=str([n.name + str(n.stats) + str(n.level) for n in self.team2.monsters]) +"\n"
+                #battle_log += current_mon.name + " of type "+current_mon.type +" tries to attack from pos"+str(current_mon.pos)+"\n"
 
                 if target == -1:
-                    battle_log += current_mon.name + " cant attack\n"
+                    #battle_log += current_mon.name + " cant attack\n"
                     current_mon.can_attack = False
                     continue
                 else:
@@ -88,7 +92,7 @@ class SteemMonstersSimulation:
                 target_mon = enemy_team.monsters[target]
 
                 if target_mon.alive:
-                    battle_log += target_mon.name +" is alive\n"
+                    #battle_log += target_mon.name +" is alive\n"
                     previous_mon = None
                     next_mon = None
 
@@ -99,7 +103,7 @@ class SteemMonstersSimulation:
                     success = current_mon.attack(target_mon,previous_mon,next_mon)
 
                     if not current_mon.alive and current_mon.pos < len(current_team.monsters):
-                        battle_log += current_mon.name + " died. Own Team."
+                        #battle_log += current_mon.name + " died. Own Team."
                         self.is_dead(current_mon,current_team,enemy_team,current_mon.pos)
 
                         if not enemy_team.monsters:
@@ -109,19 +113,19 @@ class SteemMonstersSimulation:
                         continue
 
 
-                battle_log += current_mon.name +" attacks " + target_mon.name +"\n"
-                if not success:
-                        battle_log += target_mon.name + " evades\n"
+                #battle_log += current_mon.name +" attacks " + target_mon.name +"\n"
+                #if not success:
+                        #battle_log += target_mon.name + " evades\n"
 
 
-                battle_log += str(current_mon.stats) +" attacks " + str(target_mon.stats) +"\n"
+                #battle_log += str(current_mon.stats) +" attacks " + str(target_mon.stats) +"\n"
 
 
                 if not target_mon.alive:
-                    battle_log += target_mon.name + " dies\n"
+                    #battle_log += target_mon.name + " dies\n"
                     self.is_dead(target_mon,enemy_team,current_team,target)
-                    battle_log += str([m.name for m in team1_order]) +"\n"
-                    battle_log += str([m.name for m in team2_order]) + "\n"
+                    #battle_log += str([m.name for m in team1_order]) +"\n"
+                    #battle_log += str([m.name for m in team2_order]) + "\n"
                     if not enemy_team.monsters:
                         break
                     if not current_team.monsters:
@@ -131,7 +135,7 @@ class SteemMonstersSimulation:
 
                 i = 0
                 damage = turns - 20
-                battle_log += "Fatigue sets in: -" + str(damage)
+                #battle_log += "Fatigue sets in: -" + str(damage)
                 for mon in self.team1.monsters:
 
                     self.apply_damage(mon,damage)
@@ -145,7 +149,7 @@ class SteemMonstersSimulation:
                         self.is_dead(mon,self.team2,self.team1,i)
                     i += 1
 
-            if self.team1.ruleset == "Earthquake":
+            if "Earthquake" in self.team1.ruleset:
 
                 i = 0
                 for mon in self.team1.monsters:
@@ -165,11 +169,11 @@ class SteemMonstersSimulation:
 
                     i += 1
 
-            battle_log += str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team1.monsters]) + "\n"
-            battle_log += str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team2.monsters]) + "\n"
-            battle_log += "\nTURN END\n"
+            #battle_log += str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team1.monsters]) + "\n"
+            #battle_log += str([m.name+str(m.stats)+str(m.abilities)+m.type for m in self.team2.monsters]) + "\n"
+            #battle_log += "\nTURN END\n"
         #print(battle_log)
-        self.battle_log = battle_log
+        self.battle_log = ""
         if  (len(self.team1.monsters) == 0 and len(self.team2.monsters) == 0):
             return 0
         elif len(self.team1.monsters) == 0:
@@ -177,6 +181,7 @@ class SteemMonstersSimulation:
                 return -1
             else:
                 return 1
+
         elif len(self.team2.monsters) == 0:
             if self.team2.player == self.player:
                 return -1
@@ -194,6 +199,10 @@ class SteemMonstersSimulation:
                 return
         enemy_mod = [ i*-1 for i in mon.enemy_mod]
         team_mod = [ i*-1 for i in mon.team_mod]
+
+        if "Blind" in mon.abilities:
+            enemy_team.set_blinded(False)
+
         self.apply_buff(current_team,team_mod,True,True)
         self.apply_buff(enemy_team,enemy_mod,True,True)
 
@@ -244,19 +253,12 @@ class SteemMonstersSimulation:
             else:
                 self.last_team = 2
                 return team2_order.pop()
-            """
-            if self.last_team == 1:
-                self.last_team = 2
-                return team2_order.pop()
-            else:
-                self.last_team = 1
-                return team1_order.pop()
-            """
+
             #self.last_team = 1
             #return team1_order.pop()
     def build_turn_order(self,team):
         sorted_team = []
-        if self.team1.ruleset != "Reverse Speed":
+        if "Reverse Speed" not in self.team1.ruleset:
             sorted_team = sorted(team.monsters,key = lambda m: (m.stats[5]))
         else:
             sorted_team = sorted(team.monsters,key = lambda m: (m.stats[5]),reverse=True)
@@ -269,18 +271,3 @@ def load_SM_dict():
     for entry in json.loads(f):
         sm_dict[entry["id"]] = entry
     return sm_dict
-
-"""
-sm_dict = load_SM_dict()
-
-t1 = [{"id":49,"level":3},{"id":45,"level":4},{"id":50,"level":3},{"id":52,"level":3},{"id":124,"level":2},{"id":46,"level":4},{"id":51,"level":2}]
-t2 = [{"id":27,"level":4},{"id":30,"level":4},{"id":23,"level":5},{"id":26,"level":5},{"id":33,"level":2}]
-
-team1 = Team(t1[0],t1[1:],"",sm_dict,"other")
-team2 = Team(t2[0],t2[1:],"",sm_dict,"aicu")
-
-start = timeit.default_timer()
-sm = SteemMonstersSimulation(team1,team2,sm_dict,"aicu")
-print(sm.simulate_battle())
-print(timeit.default_timer()-start)
-"""

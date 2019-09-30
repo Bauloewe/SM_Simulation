@@ -1,13 +1,14 @@
 from Summoner import Summoner
 from Monster import Monster
 class Team:
+
     def __init__(self,summoner,monsters,ruleset,sm_dict,player):
         self.player = player
         self.summoner = Summoner(summoner["level"],sm_dict[summoner["id"]],ruleset)
         self.monsters = []
-
+        self.blinded = False
         self.ruleset = ruleset
-        if ruleset != "Silenced Summoners":
+        if "Silenced Summoners" not in ruleset:
             self.team_mod = self.summoner.team_mod
             self.enemy_mod = self.summoner.enemy_mod
         else:
@@ -24,3 +25,5 @@ class Team:
         for i in range(0,len(self.monsters)):
             self.monsters[i].pos = i
 
+    def set_blinded(self, blinded):
+        self.blinded = blinded

@@ -3,6 +3,7 @@ import math
 class Monster:
 
     def __init__(self,level,details,pos,ruleset):
+        self.blinded = False
         self.ruleset = ruleset
         self.pos = pos
         self.level = level
@@ -94,6 +95,10 @@ class Monster:
 
     def start_turn(self,team,team_enemy):
         if self.alive:
+
+            if self.type == "ranged" or self.type == "melee":
+                self.blinded = team.blinded
+
             if self.stun:
                 self.stun = False
                 return True
@@ -285,6 +290,9 @@ class Monster:
             mod = -math.floor(damage*0.67)
         if "Void" in target.abilities and own.type == "magic":
             mod = -math.floor(damage*0.67)
+        if "Headwinds" in target.abilities and own.type == "ranged":
+            mod -= 1
+
         if target.stats[3] > 0 and self.type != "magic":
             rem_armor = target.stats[3] - (damage + mod)
             if "Piercing" in own.abilities and rem_armor < 0:
@@ -323,6 +331,10 @@ class Monster:
                 evasion_rate += 0.25
             if "Dodge" in monster.abilities:
                 evasion_rate += 0.25
+
+            if self.blinded:
+                evasion_rate += 0.15
+
             evasion_rate += 0.1
             evasion_rate = min(0.9,evasion_rate)
 
@@ -402,3 +414,4 @@ class Monster:
         monster.alive = monster.stats[4] > 0
         self.alive = self.stats[4] > 0
         return True
+
