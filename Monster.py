@@ -175,14 +175,6 @@ class Monster:
             for i in range(0,len(modifier)):
                 self.base_stats[i] += modifier[i]
                 self.stats[i] += modifier[i]
-            if self.type == "melee":
-                self.damage = self.stats[0]
-            elif self.type == "ranged":
-                self.damage = self.stats[1]
-            elif self.type == "magic":
-                self.damage = self.stats[2]
-            else:
-                self.damage = 0
 
         else:
 
@@ -202,6 +194,14 @@ class Monster:
                         if self.mod[i] < 0:
                             self.stats[i] += modifier[i]
                             self.mod[i] += modifier[i]
+        if self.type == "melee":
+                self.damage = self.stats[0]
+        elif self.type == "ranged":
+            self.damage = self.stats[1]
+        elif self.type == "magic":
+            self.damage = self.stats[2]
+        else:
+            self.damage = 0
 
 
 
@@ -287,9 +287,9 @@ class Monster:
 
         mod = 0
         if "Shield" in target.abilities and own.type != "magic":
-            mod = -math.floor(damage*0.67)
+            mod -= damage - math.floor(damage*0.67)
         if "Void" in target.abilities and own.type == "magic":
-            mod = -math.floor(damage*0.67)
+            mod -= damage - math.floor(damage*0.67)
         if "Headwinds" in target.abilities and own.type == "ranged":
             mod -= 1
 
@@ -379,7 +379,7 @@ class Monster:
                     self.stats[4] += 1
             else:
                 if "Void" in monster.abilities and self.type == "magic":
-                    mod = -math.floor(self.damage*0.67)
+                    mod -= self.damage - math.floor(self.damage*0.67)
                 rem_health = monster.stats[4] - (self.damage + mod)
                 if rem_health < 0:
                     rem_health = 0
@@ -388,7 +388,7 @@ class Monster:
                     self.stats[4] += 1
 
             if "Magic Reflect" in monster.abilities:
-                reflected_damage = max(1,(math.floor(self.damage*0.67)))
+                reflected_damage = max(1.0,(math.floor(self.damage*0.67)))
                 if monster.alive:
                     self.stats[4] -= reflected_damage
         if "Blast" in self.abilities:
