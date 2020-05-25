@@ -73,9 +73,9 @@ class Monster:
                         continue
 
                 mon_abilities += ability
-            if "Super Sneak" in ruleset and type == "melee":
+            if "Super Sneak" in ruleset and self.type == "melee":
                 mon_abilities += "Sneak"
-            if "Target Practice" in ruleset and (type == "magic" or type == "ranged"):
+            if "Target Practice" in ruleset and (self.type == "magic" or self.type == "ranged"):
                 mon_abilities += "Snipe"
 
 
